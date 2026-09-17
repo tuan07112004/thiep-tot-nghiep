@@ -300,13 +300,16 @@
     .countdown {
       margin: 22px auto 0;
       width: fit-content;
-      padding: 12px 22px;
+      max-width: calc(100% - 32px);
+      padding: 12px 16px;
       border-radius: 999px;
       background: rgba(16, 36, 74, .06);
       color: var(--navy);
-      font-size: clamp(.92rem, 1.8vw, 1.15rem);
+      text-align: center;
+      font-size: clamp(.86rem, 1.7vw, 1.1rem);
       font-weight: 600;
       letter-spacing: .04em;
+      line-height: 1.45;
     }
     .details {
       position: relative;
@@ -714,10 +717,11 @@
       const d = Math.floor(diff / 86400000);
       const h = Math.floor(diff / 3600000) % 24;
       const m = Math.floor(diff / 60000) % 60;
-      countdown.textContent = `Còn ${d} ngày ${h} giờ ${m} phút nữa gặp nhau`;
+      const s = Math.floor(diff / 1000) % 60;
+      countdown.textContent = `Còn ${d} ngày ${h} giờ ${m} phút ${s} giây nữa gặp nhau`;
     }
     tick();
-    setInterval(tick, 30000);
+    setInterval(tick, 1000);
 
     const ribbon = document.querySelector(".ribbon");
     let lastY = window.scrollY;
