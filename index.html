@@ -477,6 +477,10 @@
       border: 0;
       border-radius: 999px;
       padding: 15px 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
       background: linear-gradient(180deg, #1a3568, #0d2044);
       color: #fff;
       font-size: .82rem;
@@ -485,7 +489,17 @@
       text-transform: uppercase;
       cursor: pointer;
     }
-    .submit:disabled { opacity: .65; cursor: wait; }
+    .submit:disabled { opacity: .8; cursor: wait; }
+    .submit .spin {
+      display: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    .submit.is-loading .spin { display: block; }
     .thanks {
       margin: 36px 0 12px;
       color: var(--navy);
@@ -494,9 +508,64 @@
       font-size: clamp(3.4rem, 8vw, 5.2rem);
       line-height: 1;
     }
-    .success { display: none; margin: 0; text-align: center; color: var(--navy); line-height: 1.7; }
+    .success {
+      display: none;
+      margin: 8px 0 0;
+      padding: 8px 8px 4px;
+      text-align: center;
+      color: var(--navy);
+      line-height: 1.7;
+    }
+    .success-mark {
+      width: 58px;
+      height: 58px;
+      margin: 0 auto 14px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: linear-gradient(180deg, #1a3568, #0d2044);
+      color: #fff;
+      font-size: 1.7rem;
+      transform: scale(.6);
+      opacity: 0;
+    }
+    .success b {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 1.05rem;
+    }
     .rsvp.is-done form { display: none; }
-    .rsvp.is-done .success { display: block; margin-bottom: 16px; }
+    .rsvp.is-done .success { display: block; }
+    .rsvp.is-done .success-mark {
+      animation: pop-in .45s cubic-bezier(.16, 1, .3, 1) forwards;
+    }
+    @keyframes pop-in {
+      to { transform: scale(1); opacity: 1; }
+    }
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 86px;
+      z-index: 50;
+      width: max-content;
+      max-width: calc(100% - 32px);
+      padding: 12px 18px;
+      border-radius: 999px;
+      background: #10244a;
+      color: #fff;
+      text-align: center;
+      font-size: .86rem;
+      font-weight: 600;
+      box-shadow: 0 12px 30px rgba(0,0,0,.28);
+      opacity: 0;
+      transform: translateX(-50%) translateY(16px);
+      pointer-events: none;
+      transition: opacity .35s ease, transform .35s cubic-bezier(.16, 1, .3, 1);
+    }
+    .toast.is-show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
     .music {
       position: fixed;
       right: 16px;
@@ -636,13 +705,14 @@
     <section class="rsvp" id="rsvp">
       <article class="rsvp-card">
         <p class="rsvp-copy">Vui lòng xác nhận sự tham dự của bạn để mình chuẩn bị đón tiếp một cách chu đáo.<strong>Trân trọng cảm ơn!</strong></p>
-        <p class="success" id="success">Mình đã nhận được lời xác nhận. Hẹn gặp bạn trong ngày đặc biệt này.</p>
-        <form id="rsvpForm">
-          <input type="hidden" name="_subject" value="Xác nhận tham dự lễ tốt nghiệp — Đỗ Minh Tuấn" />
-          <input type="hidden" name="_template" value="table" />
-          <input type="hidden" name="_captcha" value="false" />
+        <p class="success" id="success">
+          <span class="success-mark">✓</span>
+          <b>Gửi thành công</b>
+          Mình đã nhận được lời xác nhận. Hẹn gặp bạn trong ngày đặc biệt này.
+        </p>
+        <form id="rsvpForm" autocomplete="off">
           <input name="name" required placeholder="Tên của bạn" autocomplete="name" />
-          <textarea name="message" placeholder="Lời nhắn gửi"></textarea>
+          <textarea name="note" placeholder="Lời nhắn gửi" autocomplete="off"></textarea>
           <select name="attend" required>
             <option value="" selected disabled>Xác nhận tham dự?</option>
             <option>Dự lễ tốt nghiệp 23/09</option>
@@ -650,7 +720,7 @@
             <option>Cả hai đều được</option>
             <option>Rất tiếc, mình chưa thể đến</option>
           </select>
-          <button class="submit" type="submit">Xác nhận</button>
+          <button class="submit" type="submit"><i class="spin" aria-hidden="true"></i><span>Xác nhận</span></button>
         </form>
       </article>
       <p class="thanks">Thank you!</p>
@@ -661,7 +731,7 @@
     <svg class="icon-note" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="18" r="2.4"/><circle cx="16" cy="16" r="2.4"/><path d="M8.4 18V7.5l10-2V16"/></svg>
     <svg class="icon-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="18" r="2.4"/><circle cx="16" cy="16" r="2.4"/><path d="M8.4 18V7.5l10-2V16"/><path d="M4 5l16 16"/></svg>
   </button>
-  <audio id="bgm" src="audio/nen.mp3" loop preload="auto" playsinline></audio>
+  <div class="toast" id="toast" role="status">Đã gửi xác nhận thành công</div>
 
   <script>
     const ceremonyAt = new Date("2026-09-23T12:30:00+07:00");
@@ -779,30 +849,39 @@
     const form = document.getElementById("rsvpForm");
     const rsvp = document.getElementById("rsvp");
     const submitBtn = form.querySelector(".submit");
+    const toast = document.getElementById("toast");
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add("is-show");
+      setTimeout(() => toast.classList.remove("is-show"), 3200);
+    }
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const data = Object.fromEntries(new FormData(form).entries());
       submitBtn.disabled = true;
-      submitBtn.textContent = "Đang gửi...";
+      submitBtn.classList.add("is-loading");
+      submitBtn.querySelector("span").textContent = "Đang gửi";
       try {
+        const payload = new FormData();
+        payload.append("name", data.name.trim());
+        payload.append("message", (data.note || "").trim() || "(không có lời nhắn)");
+        payload.append("attendance", data.attend);
+        payload.append("_subject", "Xác nhận tham dự lễ tốt nghiệp — Đỗ Minh Tuấn");
+        payload.append("_template", "box");
+        payload.append("_captcha", "false");
         const res = await fetch("https://formsubmit.co/ajax/dominhtuan002003@gmail.com", {
           method: "POST",
-          headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify({
-            "Tên": data.name,
-            "Lời nhắn": data.message || "(không có)",
-            "Tham dự": data.attend,
-            _subject: "Xác nhận tham dự lễ tốt nghiệp — Đỗ Minh Tuấn",
-            _template: "table",
-            _captcha: "false"
-          })
+          headers: { Accept: "application/json" },
+          body: payload
         });
         if (!res.ok) throw new Error("send failed");
         rsvp.classList.add("is-done");
+        showToast("Đã gửi xác nhận thành công");
       } catch (_) {
         submitBtn.disabled = false;
-        submitBtn.textContent = "Xác nhận";
-        alert("Chưa gửi được. Kiểm tra mạng rồi thử lại giúp mình nhé.");
+        submitBtn.classList.remove("is-loading");
+        submitBtn.querySelector("span").textContent = "Xác nhận";
+        showToast("Chưa gửi được, thử lại giúp mình nhé");
       }
     });
   </script>
