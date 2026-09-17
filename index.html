@@ -587,7 +587,7 @@
     <section class="details">
       <article class="invite-card">
         <p class="kicker">Thân mời</p>
-        <p class="guest-name" data-guest>Bạn</p>
+        <p class="guest-name">Bạn</p>
         <div class="ornament"><i></i>✦<i></i></div>
         <div class="when">
           <p class="when-time">12:30, Thứ Tư</p>
@@ -670,8 +670,6 @@
     const audio = document.getElementById("bgm");
     const musicBtn = document.getElementById("musicBtn");
     const countdown = document.getElementById("countdown");
-    const guest = new URLSearchParams(location.search).get("to") || new URLSearchParams(location.search).get("name") || "Bạn";
-    document.querySelectorAll("[data-guest]").forEach((el) => { el.textContent = guest; });
     audio.volume = 0.9;
 
     function setMusic(on) {
