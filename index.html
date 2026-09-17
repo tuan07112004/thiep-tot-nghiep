@@ -623,9 +623,20 @@
       <p>Thiệp mời lễ tốt nghiệp</p>
       <h2>Đỗ Minh Tuấn</h2>
       <p class="school-mini">Đại học Thủy Lợi</p>
-      <button class="open-btn" id="openBtn" type="button">Mở thiệp</button>
+      <button class="open-btn" id="openBtn" type="button" onclick="window.openInvite(true); return false;">Mở thiệp</button>
     </div>
   </div>
+  <script>
+    window.openInvite = function (withMusic) {
+      var g = document.getElementById("gate");
+      if (g) {
+        g.classList.add("is-open");
+        g.setAttribute("aria-hidden", "true");
+      }
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    };
+  </script>
 
   <main class="invite" aria-label="Thiệp mời tốt nghiệp của Đỗ Minh Tuấn">
     <section class="cover silk">
@@ -772,15 +783,26 @@
       } catch (_) { setMusic(false); }
     }
     function openInvite(withMusic) {
-      gate.classList.add("is-open");
+      const g = document.getElementById("gate");
+      if (g) {
+        g.classList.add("is-open");
+        g.setAttribute("aria-hidden", "true");
+      }
       document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
       if (withMusic) playMusic();
-      initReveal();
+      try { initReveal(); } catch (_) {}
     }
-    if (openBtn) openBtn.addEventListener("click", () => openInvite(true));
-    if (gate) gate.addEventListener("click", (e) => {
-      if (e.target.closest(".open-btn") || e.target === gate) openInvite(true);
-    });
+    window.openInvite = openInvite;
+    if (openBtn) {
+      openBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        openInvite(true);
+      });
+      openBtn.addEventListener("pointerup", (e) => {
+        if (e.button === 0 && !gate.classList.contains("is-open")) openInvite(true);
+      });
+    }
     if (/[?&]open=1\b/.test(location.search)) openInvite(false);
     else document.documentElement.style.overflow = "hidden";
     if (musicBtn) musicBtn.addEventListener("click", () => {
@@ -825,7 +847,7 @@
     function initReveal() {
       if (revealReady) return;
       revealReady = true;
-      const nodes = document.querySelectorAll(".brand, .ceremony, .portrait-wrap, .motto .ornament, .motto p, .countdown, .invite-card, .alt-card, .letter-card > p, .rsvp-card, .thanks");
+      const nodes = document.querySelectorAll(".invite-card, .alt-card, .letter-card > p, .rsvp-card, .thanks");
       nodes.forEach((el) => el.classList.add("reveal"));
       if (reduceMotion || !("IntersectionObserver" in window)) {
         nodes.forEach((el) => el.classList.add("is-in"));
@@ -845,11 +867,7 @@
           bottomIo.unobserve(entry.target);
         });
       }, { threshold: 0.01, rootMargin: "0px 0px 0px 0px" });
-      nodes.forEach((el, i) => {
-        if (el.closest(".cover")) {
-          setTimeout(() => el.classList.add("is-in"), 90 + i * 90);
-          return;
-        }
+      nodes.forEach((el) => {
         if (el.classList.contains("thanks") || el.classList.contains("rsvp-card")) {
           bottomIo.observe(el);
           return;
