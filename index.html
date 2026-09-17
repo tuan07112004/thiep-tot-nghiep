@@ -167,10 +167,10 @@
     .ribbon {
       position: absolute;
       z-index: 3;
-      top: 4px;
+      top: 8px;
       left: 2px;
-      bottom: 28%;
-      width: clamp(66px, 18vw, 84px);
+      bottom: 52%;
+      width: clamp(62px, 16.5vw, 78px);
       height: auto;
       min-height: 0;
       display: flex;
@@ -178,7 +178,7 @@
       align-items: center;
       justify-content: center;
       gap: 5px;
-      padding: 18px 7px 36px;
+      padding: 14px 6px 30px;
       color: #f6edd8;
       background:
         linear-gradient(90deg, rgba(255,255,255,.1) 0%, transparent 42%, rgba(0,0,0,.18) 100%),
@@ -223,7 +223,7 @@
       font-family: "Cormorant Garamond", serif;
       font-size: clamp(1.38rem, 4.1vw, 1.9rem);
       font-weight: 600;
-      letter-spacing: .32em;
+      letter-spacing: .22em;
       color: #f7efd8;
       text-shadow: 0 1px 0 rgba(0,0,0,.35);
     }
@@ -243,7 +243,7 @@
       align-self: stretch;
       width: 1px;
       height: auto;
-      margin: 16px 0 22px;
+      margin: 12px 0 18px;
       background: linear-gradient(180deg, transparent, #d4b56a, transparent);
     }
     .portrait {
@@ -521,18 +521,14 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .reveal {
       opacity: 0;
-      transform: translateY(32px);
-      transition: opacity .8s ease, transform .8s cubic-bezier(.22, 1, .36, 1);
+      transform: translate3d(0, 28px, 0);
+      transition: opacity .85s cubic-bezier(.16, 1, .3, 1), transform .85s cubic-bezier(.16, 1, .3, 1);
+      will-change: opacity, transform;
     }
     .reveal.is-in {
       opacity: 1;
       transform: none;
     }
-    .letter-card > p.reveal:nth-child(1) { transition-delay: .04s; }
-    .letter-card > p.reveal:nth-child(2) { transition-delay: .12s; }
-    .letter-card > p.reveal:nth-child(3) { transition-delay: .2s; }
-    .letter-card > p.reveal:nth-child(4) { transition-delay: .28s; }
-    .letter-card > p.reveal:nth-child(5) { transition-delay: .36s; }
     @media (min-width: 768px) {
       body { padding: 28px 20px 48px; }
       .invite { border-radius: 28px; min-height: auto; }
@@ -748,7 +744,7 @@
     function initReveal() {
       if (revealReady) return;
       revealReady = true;
-      const nodes = document.querySelectorAll(".brand, .ceremony, .portrait-wrap, .motto, .invite-card, .alt-card, .letter-card > p, .rsvp-card");
+      const nodes = document.querySelectorAll(".brand, .ceremony, .portrait-wrap, .motto .ornament, .motto p, .countdown, .invite-card, .alt-card, .letter-card > p, .rsvp-card, .thanks");
       nodes.forEach((el) => el.classList.add("reveal"));
       if (reduceMotion || !("IntersectionObserver" in window)) {
         nodes.forEach((el) => el.classList.add("is-in"));
@@ -760,10 +756,21 @@
           entry.target.classList.add("is-in");
           io.unobserve(entry.target);
         });
-      }, { threshold: 0.08, rootMargin: "0px 0px 12% 0px" });
+      }, { threshold: 0.16, rootMargin: "0px 0px -18% 0px" });
+      const bottomIo = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-in");
+          bottomIo.unobserve(entry.target);
+        });
+      }, { threshold: 0.01, rootMargin: "0px 0px 0px 0px" });
       nodes.forEach((el, i) => {
         if (el.closest(".cover")) {
-          setTimeout(() => el.classList.add("is-in"), 120 + i * 110);
+          setTimeout(() => el.classList.add("is-in"), 90 + i * 90);
+          return;
+        }
+        if (el.classList.contains("thanks") || el.classList.contains("rsvp-card")) {
+          bottomIo.observe(el);
           return;
         }
         io.observe(el);
