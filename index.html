@@ -670,14 +670,29 @@
     const audio = document.getElementById("bgm");
     const musicBtn = document.getElementById("musicBtn");
     const countdown = document.getElementById("countdown");
-    audio.volume = 0.9;
-
+    audio.volume = 1;
+    let audioCtx = null;
+    function boostMusic() {
+      if (audioCtx) return;
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      audioCtx = new Ctx();
+      const source = audioCtx.createMediaElementSource(audio);
+      const gain = audioCtx.createGain();
+      gain.gain.value = 2.2;
+      source.connect(gain).connect(audioCtx.destination);
+    }
     function setMusic(on) {
       musicBtn.classList.toggle("is-on", on);
       musicBtn.setAttribute("aria-label", on ? "Tắt nhạc nền" : "Bật nhạc nền");
     }
     async function playMusic() {
-      try { await audio.play(); setMusic(true); } catch (_) { setMusic(false); }
+      try {
+        boostMusic();
+        if (audioCtx && audioCtx.state === "suspended") await audioCtx.resume();
+        await audio.play();
+        setMusic(true);
+      } catch (_) { setMusic(false); }
     }
     function openInvite(withMusic) {
       gate.classList.add("is-open");
