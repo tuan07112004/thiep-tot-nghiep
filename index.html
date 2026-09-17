@@ -183,7 +183,7 @@
       z-index: 3;
       top: 8px;
       left: 2px;
-      bottom: 34%;
+      bottom: 28%;
       width: clamp(62px, 16.5vw, 78px);
       height: auto;
       min-height: 0;
@@ -617,6 +617,31 @@
     }
     .portrait-wrap.reveal.is-in {
       transform: none;
+    }
+    @media (max-width: 480px) {
+      .ribbon {
+        top: 6px;
+        left: 4px;
+        bottom: 15%;
+        width: 56px;
+        padding: 12px 5px 28px;
+      }
+      .ribbon strong {
+        font-size: 1.2rem;
+        letter-spacing: .24em;
+      }
+      .cover-head { padding-left: 66px; }
+      .brand p { font-size: .72rem; }
+      .ceremony { font-size: clamp(1.55rem, 8.4vw, 2.05rem); }
+      .sign-name {
+        left: 10%;
+        right: 4%;
+        font-size: clamp(2.1rem, 10.5vw, 2.65rem);
+      }
+      .countdown {
+        max-width: calc(100% - 24px);
+        font-size: .82rem;
+      }
     }
     @media (min-width: 768px) {
       body { padding: 28px 20px 48px; }
