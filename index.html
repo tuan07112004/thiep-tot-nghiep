@@ -54,6 +54,16 @@
       overflow: hidden;
       background: var(--paper);
       box-shadow: 0 30px 80px rgba(0, 0, 0, .45);
+      transform-origin: 50% 8%;
+    }
+    body:not(.is-opened) .invite {
+      opacity: 0;
+      transform: scale(.9);
+    }
+    body.is-opened .invite {
+      opacity: 1;
+      transform: none;
+      transition: opacity .7s ease, transform 1.05s cubic-bezier(.16, 1, .3, 1);
     }
     .silk {
       background:
@@ -595,11 +605,17 @@
     .reveal {
       opacity: 0;
       transform: translate3d(0, 28px, 0);
-      transition: opacity .85s cubic-bezier(.16, 1, .3, 1), transform .85s cubic-bezier(.16, 1, .3, 1);
+      transition: opacity .9s cubic-bezier(.16, 1, .3, 1), transform .9s cubic-bezier(.16, 1, .3, 1);
       will-change: opacity, transform;
     }
     .reveal.is-in {
       opacity: 1;
+      transform: none;
+    }
+    .portrait-wrap.reveal {
+      transform: scale(.94) translate3d(0, 24px, 0);
+    }
+    .portrait-wrap.reveal.is-in {
       transform: none;
     }
     @media (min-width: 768px) {
@@ -612,7 +628,7 @@
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       .music.is-on svg, .gate, .ribbon { animation: none; transition: none; }
-      .reveal { opacity: 1; transform: none; transition: none; }
+      .reveal, body:not(.is-opened) .invite { opacity: 1; transform: none; transition: none; }
     }
   </style>
 </head>
@@ -628,6 +644,7 @@
   </div>
   <script>
     window.openInvite = function (withMusic) {
+      document.body.classList.add("is-opened");
       var g = document.getElementById("gate");
       if (g) {
         g.classList.add("is-open");
@@ -783,6 +800,7 @@
       } catch (_) { setMusic(false); }
     }
     function openInvite(withMusic) {
+      document.body.classList.add("is-opened");
       const g = document.getElementById("gate");
       if (g) {
         g.classList.add("is-open");
@@ -791,6 +809,7 @@
       document.documentElement.style.overflow = "";
       document.body.style.overflow = "";
       if (withMusic) playMusic();
+      playCover();
       try { initReveal(); } catch (_) {}
     }
     window.openInvite = openInvite;
@@ -844,13 +863,18 @@
     }, { passive: true });
     flutter();
     let revealReady = false;
+    function playCover() {
+      document.querySelectorAll(".cover .reveal").forEach((el, i) => {
+        setTimeout(() => el.classList.add("is-in"), 160 + i * 130);
+      });
+    }
     function initReveal() {
       if (revealReady) return;
       revealReady = true;
       const nodes = document.querySelectorAll(".invite-card, .alt-card, .letter-card > p, .rsvp-card, .thanks");
       nodes.forEach((el) => el.classList.add("reveal"));
       if (reduceMotion || !("IntersectionObserver" in window)) {
-        nodes.forEach((el) => el.classList.add("is-in"));
+        document.querySelectorAll(".reveal").forEach((el) => el.classList.add("is-in"));
         return;
       }
       const io = new IntersectionObserver((entries) => {
@@ -875,6 +899,9 @@
         io.observe(el);
       });
     }
+    document.querySelectorAll(".brand, .ceremony, .portrait-wrap, .motto .ornament, .motto p, .countdown").forEach((el) => {
+      el.classList.add("reveal");
+    });
     const form = document.getElementById("rsvpForm");
     const rsvp = document.getElementById("rsvp");
     const submitBtn = form && form.querySelector(".submit");
